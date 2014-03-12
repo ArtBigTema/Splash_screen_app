@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Splash screen</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="current_time_text">Splash screen</string>
+    <string name="title_activity_asecond">Home Screen</string>
+    <string name="title_activity_main">Home Screen</string>
+ 	<string name="desc">Image desc</string>
+    
+    
+</resources>
