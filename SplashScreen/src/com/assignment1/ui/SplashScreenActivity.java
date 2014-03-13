@@ -80,6 +80,7 @@ public class SplashScreenActivity extends Activity {
 	@Override
 	protected void onStop() {
 		super.onStop();
+		isHomeScreenRun=true;
 		splashCurrTimer.cancel();
 		splashCurrTimer.purge();
 		splashCurrTimer = null;
