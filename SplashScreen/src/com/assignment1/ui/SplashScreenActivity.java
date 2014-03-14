@@ -1,6 +1,7 @@
 package com.assignment1.ui;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -15,52 +16,67 @@ import android.widget.TextView;
 public class SplashScreenActivity extends Activity {
 	private Timer splashCurrTimer;
 	private TextView currentTimeTextView;
-	boolean isHomeScreenRun=false;
+	Handler homeScreenHandler;
+	long splashStartTime;
+	static final long SPLASH_DELAY = 2000;
 
 	@Override
 	protected void onCreate(Bundle SaveInstance) {
 		super.onCreate(SaveInstance);
 		setContentView(R.layout.a_splash_screen_activity);
 		currentTimeTextView = (TextView) findViewById(R.id.current_time_text);
+		if (SaveInstance != null)
+			splashStartTime = SaveInstance.getLong("splashStartTime");
 	}
 
 	@Override
 	protected void onStart() {
 		super.onStart();
-		Handler handler = new Handler();
-		handler.postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				runHomeScreenActivity();
-			}
-		}, 2000);
-	splashCurrTimer = new Timer("DigitalClock");
 
+		long currentTime = new Date().getTime();
+
+		if (0 == splashStartTime) {
+			splashStartTime = currentTime;
+		}
+
+		long splashDelayTime = SPLASH_DELAY - (currentTime - splashStartTime);
+
+		if (splashDelayTime <= 0) {
+			runHomeScreenActivity();
+		} else if (splashDelayTime > SPLASH_DELAY) {
+			SplashScreenActivity.super.finish();
+		} else {
+			homeScreenHandler = new Handler();// start handler here
+			homeScreenHandler.postDelayed(splashTask, splashDelayTime);
+		}
+
+		splashCurrTimer = new Timer("DigitalClock");
 		final Runnable updateTask = new Runnable() {
 			public void run() {
 				currentTimeTextView.setText(getCurrentTime());
 			}
 		};
-
 		splashCurrTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
 				runOnUiThread(updateTask);
-
 			}
 		}, 0, 1000);
 
 	}
 
+	private final Runnable splashTask = new Runnable() {
+		@Override
+		public void run() {
+			runHomeScreenActivity();
+		}
+	};
+
 	void runHomeScreenActivity() {
 		final Intent homeScreenIntent;
 		homeScreenIntent = new Intent(this, HomeScreenActivity.class);
-		if (!isHomeScreenRun) {
-			startActivity(homeScreenIntent);
-			SplashScreenActivity.super.onStop();
-			SplashScreenActivity.super.finish();
-			SplashScreenActivity.super.onDestroy();
-		}
+		startActivity(homeScreenIntent);
+		SplashScreenActivity.super.finish();
 	}
 
 	private String getCurrentTime() {
@@ -78,9 +94,15 @@ public class SplashScreenActivity extends Activity {
 	}
 
 	@Override
+	protected void onPause() {
+		super.onPause();
+		super.onStop();
+	}
+
+	@Override
 	protected void onStop() {
 		super.onStop();
-		isHomeScreenRun=true;
+		homeScreenHandler.removeCallbacks(splashTask);
 		splashCurrTimer.cancel();
 		splashCurrTimer.purge();
 		splashCurrTimer = null;
@@ -89,12 +111,6 @@ public class SplashScreenActivity extends Activity {
 	@Override
 	protected void onSaveInstanceState(Bundle SaveInstance) {
 		super.onSaveInstanceState(SaveInstance);
-		SaveInstance.putBoolean("IsHomeScreenRun", true);
-	}
-
-	@Override
-	protected void onRestoreInstanceState(Bundle SaveInstance) {
-		super.onRestoreInstanceState(SaveInstance);
-		isHomeScreenRun = SaveInstance.getBoolean("IsHomeScreenRun");
+		SaveInstance.putLong("splashStartTime", splashStartTime);
 	}
 }
