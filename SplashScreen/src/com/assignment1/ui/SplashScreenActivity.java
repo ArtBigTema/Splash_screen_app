@@ -4,9 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import com.example.splashscreen.R;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,8 +23,9 @@ public class SplashScreenActivity extends Activity {
 		super.onCreate(SaveInstance);
 		setContentView(R.layout.a_splash_screen_activity);
 		currentTimeTextView = (TextView) findViewById(R.id.current_time_text);
-		if (SaveInstance != null)
+		if (SaveInstance != null){
 			splashStartTime = SaveInstance.getLong("splashStartTime");
+		}
 	}
 
 	@Override
@@ -44,7 +43,7 @@ public class SplashScreenActivity extends Activity {
 		if (splashDelayTime <= 0) {
 			runHomeScreenActivity();
 		} else if (splashDelayTime > SPLASH_DELAY) {
-			SplashScreenActivity.super.finish();
+			super.finish();
 		} else {
 			homeScreenHandler = new Handler();// start handler here
 			homeScreenHandler.postDelayed(splashTask, splashDelayTime);
@@ -76,7 +75,7 @@ public class SplashScreenActivity extends Activity {
 		final Intent homeScreenIntent;
 		homeScreenIntent = new Intent(this, HomeScreenActivity.class);
 		startActivity(homeScreenIntent);
-		SplashScreenActivity.super.finish();
+		super.finish();
 	}
 
 	private String getCurrentTime() {
@@ -85,12 +84,6 @@ public class SplashScreenActivity extends Activity {
 						Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
 						Calendar.getInstance().get(Calendar.MINUTE), Calendar
 								.getInstance().get(Calendar.SECOND));
-	}
-
-	@Override
-	public void onBackPressed() {
-		SplashScreenActivity.super.onStop();
-		SplashScreenActivity.super.onBackPressed();
 	}
 
 	@Override
