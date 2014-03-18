@@ -16,6 +16,7 @@ public class SplashScreenActivity extends Activity {
 	private TextView currentTimeTextView;
 	Handler homeScreenHandler;
 	long splashStartTime;
+	static final String SPLASH_SAVE_START_TIME = "splashStartTime";
 	static final long SPLASH_DELAY = 2000;
 
 	@Override
@@ -23,8 +24,8 @@ public class SplashScreenActivity extends Activity {
 		super.onCreate(SaveInstance);
 		setContentView(R.layout.a_splash_screen_activity);
 		currentTimeTextView = (TextView) findViewById(R.id.current_time_text);
-		if (SaveInstance != null){
-			splashStartTime = SaveInstance.getLong("splashStartTime");
+		if (SaveInstance != null) {
+			splashStartTime = SaveInstance.getLong(SPLASH_SAVE_START_TIME);
 		}
 	}
 
@@ -43,7 +44,7 @@ public class SplashScreenActivity extends Activity {
 		if (splashDelayTime <= 0) {
 			runHomeScreenActivity();
 		} else if (splashDelayTime > SPLASH_DELAY) {
-			super.finish();
+			finish();
 		} else {
 			homeScreenHandler = new Handler();// start handler here
 			homeScreenHandler.postDelayed(splashTask, splashDelayTime);
@@ -75,7 +76,7 @@ public class SplashScreenActivity extends Activity {
 		final Intent homeScreenIntent;
 		homeScreenIntent = new Intent(this, HomeScreenActivity.class);
 		startActivity(homeScreenIntent);
-		super.finish();
+		finish();
 	}
 
 	private String getCurrentTime() {
@@ -87,15 +88,11 @@ public class SplashScreenActivity extends Activity {
 	}
 
 	@Override
-	protected void onPause() {
-		super.onPause();
-		super.onStop();
-	}
-
-	@Override
 	protected void onStop() {
 		super.onStop();
-		homeScreenHandler.removeCallbacks(splashTask);
+		if (homeScreenHandler != null) {
+			homeScreenHandler.removeCallbacks(splashTask);
+		}
 		splashCurrTimer.cancel();
 		splashCurrTimer.purge();
 		splashCurrTimer = null;
@@ -104,6 +101,6 @@ public class SplashScreenActivity extends Activity {
 	@Override
 	protected void onSaveInstanceState(Bundle SaveInstance) {
 		super.onSaveInstanceState(SaveInstance);
-		SaveInstance.putLong("splashStartTime", splashStartTime);
+		SaveInstance.putLong(SPLASH_SAVE_START_TIME, splashStartTime);
 	}
 }
